@@ -6,12 +6,23 @@
         <p><strong>Содержание:</strong> {{ course.content }}</p>
 
         <div class="actions">
-            <button v-if="!isEnrolled" @click="enroll" class="btn btn--enroll">
-                Записаться
-            </button>
-            <button v-else @click="unenroll" class="btn btn--unenroll">
-                Отписаться
-            </button>
+            <button v-if="!isEnrolled" @click="enroll" class="btn btn--enroll">Записаться</button>
+            <button v-else @click="unenroll" class="btn btn--unenroll">Отписаться</button>
+        </div>
+
+        <div v-if="isTeacher" class="teacher-actions">
+            <button @click="goToCreateTest" class="btn btn--create-test">Создать тест для курса</button>
+        </div>
+
+        <div class="tests" v-if="tests.length">
+            <h3>Тесты:</h3>
+            <ul>
+                <li v-for="test in tests" :key="test.id">
+                    <router-link :to="{ name: 'TestTake', params: { id: test.id } }">
+                        {{ test.title }}
+                    </router-link>
+                </li>
+            </ul>
         </div>
     </div>
 
@@ -25,7 +36,9 @@ export default {
     data() {
         return {
             course: null,
-            isEnrolled: false
+            isEnrolled: false,
+            isTeacher: false,
+            tests: []
         }
     },
     async mounted() {
@@ -33,13 +46,19 @@ export default {
         const userId = localStorage.getItem('userId')
 
         try {
-            const res = await axios.get(`http://77.110.104.90:8000/api/courses/${courseId}/`)
-            this.course = res.data
+            const [courseRes, enrollmentRes, userRes, testsRes] = await Promise.all([
+                axios.get(`http://77.110.104.90:8000/api/courses/${courseId}/`),
+                axios.get(`http://77.110.104.90:8000/api/my-courses/${userId}/`),
+                axios.get(`http://77.110.104.90:8000/api/profile/${userId}/`),
+                axios.get(`http://77.110.104.90:8000/api/courses/${courseId}/tests/`)
+            ])
 
-            const enrollmentCheck = await axios.get(`http://77.110.104.90:8000/api/my-courses/${userId}/`)
-            this.isEnrolled = enrollmentCheck.data.some(c => c.id == courseId)
+            this.course = courseRes.data
+            this.isEnrolled = enrollmentRes.data.some(c => c.id == courseId)
+            this.isTeacher = userRes.data.role === 'преподаватель'
+            this.tests = testsRes.data
         } catch (e) {
-            console.error('Ошибка загрузки курса:', e)
+            console.error('Ошибка при загрузке данных:', e)
         }
     },
     methods: {
@@ -66,11 +85,13 @@ export default {
             } catch (e) {
                 console.error('Ошибка при отписке:', e)
             }
+        },
+        goToCreateTest() {
+            this.$router.push({ name: 'CreateTest', params: { courseId: this.course.id } })
         }
     }
 }
 </script>
-
 
 <style scoped>
 .actions {
@@ -91,7 +112,6 @@ export default {
 
 .btn--enroll {
     background-color: #4caf50;
-    /* зелёный */
     color: white;
 }
 
@@ -101,11 +121,42 @@ export default {
 
 .btn--unenroll {
     background-color: #f44336;
-    /* красный */
     color: white;
 }
 
 .btn--unenroll:hover {
     background-color: #d32f2f;
+}
+
+.btn--create-test {
+    background-color: #2196f3;
+    color: white;
+}
+
+.btn--create-test:hover {
+    background-color: #1976d2;
+}
+
+.tests {
+    margin-top: 30px;
+}
+
+.tests ul {
+    list-style: none;
+    padding: 0;
+}
+
+.tests li {
+    margin-bottom: 10px;
+}
+
+.tests a {
+    color: #2196f3;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.tests a:hover {
+    text-decoration: underline;
 }
 </style>
