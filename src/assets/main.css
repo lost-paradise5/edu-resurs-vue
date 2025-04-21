@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Tenor+Sans&display=swap');
+
+:root {
+  --main-font: 'Roboto', sans-serif;
+  --secondary-font: 'Tenor Sans', sans-serif;
+}
+
+
+body {
+  background-color: #E5EDF3;
+}
+
+.container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.checkbox input[type="checkbox"] {
+  display: none;
+  /* Скрываем стандартный чекбокс */
+}
+
+.checkbox__custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fff;
+  background-color: transparent;
+  position: relative;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.checkbox input:checked+.checkbox__custom {
+  background-color: #fff;
+  border-color: #fff;
+}
+
+.checkbox input:checked+.checkbox__custom::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  width: 6px;
+  height: 12px;
+  border: solid #000;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
