@@ -50,6 +50,13 @@ a:active {
   /* outline: none;*/
 }
 
+select:focus,
+select:active {
+  border: 1px solid #ccc;     /* такая же как в обычном состоянии */
+  outline: none;
+  box-shadow: none;           /* убрать glow */
+}
+
 /* Links */
 
 a,

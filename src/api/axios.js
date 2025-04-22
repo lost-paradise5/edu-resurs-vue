@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const API = axios.create({
-  baseURL: 'http://77.110.104.90:8000/api/',
+const api = axios.create({
+  baseURL: process.env.VUE_APP_IP_SERVER || 'http://localhost:3000/api/',
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-export default API;
+export default api;
